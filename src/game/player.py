@@ -1,0 +1,1 @@
+# storage for player position and walls remaining

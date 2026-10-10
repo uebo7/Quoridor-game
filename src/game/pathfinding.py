@@ -1,0 +1,1 @@
+# BFS to make sure players can reach end goal

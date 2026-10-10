@@ -1,0 +1,1 @@
+# representation for walls (vertical / horizontal)

@@ -1,0 +1,1 @@
+# Manage playing grid and wall position
