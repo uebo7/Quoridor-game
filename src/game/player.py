@@ -32,7 +32,7 @@ class Player:
 
     def use_wall(self):
         if self.walls > 0:
-            --self.walls
+            self.walls -= 1
             return True
         return False
 
