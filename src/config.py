@@ -5,7 +5,7 @@
 # constraints
 
 # board settings
-BOARD_SIZE = 10
+BOARD_SIZE = 9
 CELL_SIZE = 70
 
 # wall settings
