@@ -1,0 +1,58 @@
+from game.game_manager import GameManager
+
+
+def test_player_one_starts():
+    game = GameManager()
+
+    assert game.current_player is game.players[0]
+
+
+def test_turns_alternate():
+    game = GameManager()
+
+    game.next_turn()
+    assert game.current_player is game.players[1]
+
+    game.next_turn()
+    assert game.current_player is game.players[0]
+
+
+def test_winner_is_detected():
+    game = GameManager()
+    player = game.players[0]
+
+    player.move_to(0, player.col)
+
+    assert game.check_winner() is player
+    assert game.game_over is True
+    assert game.winner is player
+
+
+def test_no_winner_at_start():
+    game = GameManager()
+
+    assert game.check_winner() is None
+    assert game.game_over is False
+
+
+def test_turn_does_not_advance_after_game_over():
+    game = GameManager()
+    game.game_over = True
+
+    original_index = game.current_player_index
+    game.next_turn()
+
+    assert game.current_player_index == original_index
+
+
+def test_reset_restores_initial_state():
+    game = GameManager()
+    game.next_turn()
+    game.game_over = True
+
+    game.reset()
+
+    assert game.current_player_index == 0
+    assert game.game_over is False
+    assert game.winner is None
+    assert all(player.walls == 10 for player in game.players)
