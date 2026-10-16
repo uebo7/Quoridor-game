@@ -17,6 +17,14 @@ def test_pawn_coordinates():
     assert not board.in_bounds(-1, 0)
 
 
+def test_wall_position_must_fit_completely_on_board():
+    board = Board()
+
+    assert not board.valid_wall_position(-1, 0)
+    assert not board.valid_wall_position(0, -1)
+    assert not board.valid_wall_position(8, 8)
+
+
 def test_wall_anchor_must_fit():
     board = Board()
 
@@ -42,6 +50,13 @@ def test_crossing_walls_rejected():
     assert not board.place_wall(3, 4, "vertical")
 
 
+def test_overlapping_walls_in_same_orientation_are_rejected():
+    board = Board()
+
+    assert board.place_wall(3, 3, "horizontal")
+    assert not board.place_wall(3, 4, "horizontal")
+
+
 def test_horizontal_walls_can_touch_end_to_end():
     board = Board()
 
@@ -61,6 +76,13 @@ def test_perpendicular_walls_can_touch_at_endpoints():
 
     assert board.place_wall(3, 2, "horizontal")
     assert board.place_wall(2, 3, "vertical")
+
+
+def test_wall_lookup_rejects_unknown_orientation():
+    board = Board()
+
+    with pytest.raises(ValueError):
+        board.has_wall(0, 0, "diagonal")
 
 
 def test_horizontal_wall_blocks_both_cell_edges():
