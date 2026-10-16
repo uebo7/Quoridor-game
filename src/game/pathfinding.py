@@ -30,6 +30,9 @@ def is_movement_blocked(board, start, end):
 
 
 def has_path_to_goal(board, start, goal_row):
+    if not board.in_bounds(*start) or not 0 <= goal_row < board.size:
+        return False
+
     queue = deque([start])
     visited = {start}
 
