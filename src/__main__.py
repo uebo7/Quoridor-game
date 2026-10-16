@@ -1,15 +1,17 @@
-# run game loop
+import pygame
 
-# tests
 from game.game_manager import GameManager
+from ui.input_handler import InputHandler
+from ui.render import Renderer
 
-game = GameManager()
 
-print("Board size:", game.board.size)
-print("Current player:", game.current_player.color)
-print("Player positions:", [
-    player.get_position() for player in game.players
-])
+def main():
+    pygame.init()
+    game = GameManager()
+    renderer = Renderer(game)
+    renderer.input_handler = InputHandler(game, renderer)
+    renderer.run()
 
-game.next_turn()
-print("Next player:", game.current_player.color)
+
+if __name__ == "__main__":
+    main()

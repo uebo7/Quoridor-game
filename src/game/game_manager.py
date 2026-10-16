@@ -34,16 +34,11 @@ class GameManager:
     def current_player(self):
         return self.players[self.current_player_index]
 
-    # switch to other players turn
     def next_turn(self):
         if self.game_over:
             return
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
 
-        self.current_player_index = (
-            self.current_player_index + 1
-        ) % len(self.players)
-
-    # check whether anyone has won yet or not
     def check_winner(self):
         for player in self.players:
             if player.has_won():
@@ -51,11 +46,15 @@ class GameManager:
                 self.winner = player
                 return player
 
+        self.game_over = False
         self.winner = None
         return None
 
     def move_player(self, row, col):
         player = self.current_player
+
+        if self.game_over:
+            return False
 
         if not self.board.valid_move(player.row, player.col, row, col):
             return False
@@ -69,9 +68,17 @@ class GameManager:
         self.next_turn()
         return True
 
-    def place_wall(self, row, col, orientation):
+    def move_current_player(self, delta_row, delta_col):
         player = self.current_player
+        target_row = player.row + delta_row
+        target_col = player.col + delta_col
+        return self.move_player(target_row, target_col)
 
+    def place_wall(self, row, col, orientation):
+        if self.game_over:
+            return False
+
+        player = self.current_player
         if player.walls <= 0:
             return False
 
@@ -82,6 +89,5 @@ class GameManager:
         self.next_turn()
         return True
 
-    # restart a game
     def reset(self):
         self.__init__()
