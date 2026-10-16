@@ -43,9 +43,9 @@ class Hud:
         instructions = [
             "M = move mode",
             "W = wall mode",
-            " Arrows/WASD = move",
-            "Left click = horizontal",
-            "Right click = vertical",
+            "R = rotate wall",
+            "Arrows/WASD = move",
+            "Click = place wall",
             "Q = quit",
         ]
 

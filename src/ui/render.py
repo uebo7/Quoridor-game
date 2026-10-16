@@ -10,6 +10,8 @@ class Renderer:
     def __init__(self, game):
         self.game = game
         self.mode = "move"
+        self.preview_orientation = "horizontal"
+        self.preview_position = (0, 0)
         self.panel_width = 220
         self.width = BOARD_SIZE * CELL_SIZE + self.panel_width
         self.height = BOARD_SIZE * CELL_SIZE
@@ -28,6 +30,9 @@ class Renderer:
             for col in range(BOARD_SIZE):
                 rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
                 pygame.draw.rect(self.screen, (70, 70, 70), rect, 1)
+
+        if self.mode == "wall":
+            self._draw_wall_preview()
 
         self._draw_walls()
         self._draw_players()
@@ -52,15 +57,28 @@ class Renderer:
     def _draw_walls(self):
         for row, col in self.game.board.horizontal_walls:
             x = col * CELL_SIZE
-            y = row * CELL_SIZE + CELL_SIZE // 2 - 5
-            wall_rect = pygame.Rect(x, y, CELL_SIZE * 2, 10)
+            y = (row + 1) * CELL_SIZE - 5
+            wall_rect = pygame.Rect(x, y, CELL_SIZE * 2, 8)
             pygame.draw.rect(self.screen, (200, 180, 120), wall_rect)
 
         for row, col in self.game.board.vertical_walls:
-            x = col * CELL_SIZE + CELL_SIZE // 2 - 5
+            x = (col + 1) * CELL_SIZE - 5
             y = row * CELL_SIZE
-            wall_rect = pygame.Rect(x, y, 10, CELL_SIZE * 2)
+            wall_rect = pygame.Rect(x, y, 8, CELL_SIZE * 2)
             pygame.draw.rect(self.screen, (200, 180, 120), wall_rect)
+
+    def _draw_wall_preview(self):
+        row, col = self.preview_position
+        if self.preview_orientation == "horizontal":
+            x = col * CELL_SIZE
+            y = (row + 1) * CELL_SIZE - 5
+            rect = pygame.Rect(x, y, CELL_SIZE * 2, 8)
+            pygame.draw.rect(self.screen, (120, 220, 255), rect, 2)
+        else:
+            x = (col + 1) * CELL_SIZE - 5
+            y = row * CELL_SIZE
+            rect = pygame.Rect(x, y, 8, CELL_SIZE * 2)
+            pygame.draw.rect(self.screen, (120, 220, 255), rect, 2)
 
     def _goal_tint(self, color_name):
         tints = {
@@ -80,12 +98,26 @@ class Renderer:
         }
         return colors.get(color_name, (255, 255, 255))
 
-    def handle_click(self, pos, button):
+    def rotate_wall(self):
+        if self.preview_orientation == "horizontal":
+            self.preview_orientation = "vertical"
+        else:
+            self.preview_orientation = "horizontal"
+
+    def _update_preview_from_mouse(self, pos):
         if pos[0] >= BOARD_SIZE * CELL_SIZE or pos[1] >= BOARD_SIZE * CELL_SIZE:
             return
 
-        col = pos[0] // CELL_SIZE
-        row = pos[1] // CELL_SIZE
+        col = min(pos[0] // CELL_SIZE, BOARD_SIZE - 2)
+        row = min(pos[1] // CELL_SIZE, BOARD_SIZE - 2)
+        self.preview_position = (row, col)
+
+    def handle_click(self, pos, button=None):
+        if pos[0] >= BOARD_SIZE * CELL_SIZE or pos[1] >= BOARD_SIZE * CELL_SIZE:
+            return
+
+        col = min(pos[0] // CELL_SIZE, BOARD_SIZE - 2)
+        row = min(pos[1] // CELL_SIZE, BOARD_SIZE - 2)
 
         if not self.game.board.in_bounds(row, col):
             return
@@ -98,8 +130,7 @@ class Renderer:
             return
 
         if self.mode == "wall":
-            orientation = "horizontal" if button == 1 else "vertical"
-            self.game.place_wall(row, col, orientation)
+            self.game.place_wall(row, col, self.preview_orientation)
             self.mode = "move"
 
     def run(self):
@@ -111,8 +142,11 @@ class Renderer:
                     if event.type == pygame.QUIT:
                         self.running = False
 
+                    if event.type == pygame.MOUSEMOTION:
+                        self._update_preview_from_mouse(event.pos)
+
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        self.handle_click(event.pos, event.button)
+                        self.handle_click(event.pos)
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_q:
@@ -121,6 +155,8 @@ class Renderer:
                             self.mode = "move"
                         elif event.key == pygame.K_w:
                             self.mode = "wall"
+                        elif event.key == pygame.K_r:
+                            self.rotate_wall()
 
             self.draw_board()
             self.clock.tick(60)

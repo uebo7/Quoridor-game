@@ -7,8 +7,12 @@ class InputHandler:
         self.renderer = renderer
 
     def handle_event(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            self.renderer._update_preview_from_mouse(event.pos)
+            return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            self.renderer.handle_click(event.pos, event.button)
+            self.renderer.handle_click(event.pos)
             return
 
         if event.type != pygame.KEYDOWN:
@@ -22,12 +26,12 @@ class InputHandler:
             self.renderer.mode = "move"
             return
 
-        if event.key == pygame.K_w:
+        if event.key in (pygame.K_w, pygame.K_b):
             self.renderer.mode = "wall"
             return
 
-        if event.key == pygame.K_b:
-            self.renderer.mode = "wall"
+        if event.key == pygame.K_r:
+            self.renderer.rotate_wall()
             return
 
         if event.key in (pygame.K_LEFT, pygame.K_a):
@@ -40,5 +44,5 @@ class InputHandler:
             self.game.move_current_player(1, 0)
         elif event.key == pygame.K_s:
             self.game.move_current_player(1, 0)
-        elif event.key == pygame.K_r:
+        elif event.key == pygame.K_n:
             self.game.reset()

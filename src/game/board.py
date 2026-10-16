@@ -45,30 +45,24 @@ class Board:
 
     def _wall_conflicts(self, row, col, orientation):
         if orientation == "horizontal":
-            if (row, col - 1) in self.horizontal_walls:
-                return True
-            if (row, col + 1) in self.horizontal_walls:
-                return True
-            if (row, col) in self.vertical_walls:
-                return True
-            if (row, col + 1) in self.vertical_walls:
-                return True
-            if (row - 1, col) in self.vertical_walls:
-                return True
-            if (row + 1, col) in self.vertical_walls:
-                return True
+            for other_row, other_col in self.horizontal_walls:
+                if other_row == row and max(other_col, col) < min(other_col + 2, col + 2):
+                    return True
+
+            for other_row, other_col in self.vertical_walls:
+                if other_row == row and other_col == col:
+                    return True
+
             return False
 
-        if (row - 1, col) in self.vertical_walls:
-            return True
-        if (row + 1, col) in self.vertical_walls:
-            return True
-        if (row, col) in self.horizontal_walls:
-            return True
-        if (row, col + 1) in self.horizontal_walls:
-            return True
-        if (row, col) in self.vertical_walls:
-            return True
+        for other_row, other_col in self.vertical_walls:
+            if other_col == col and max(other_row, row) < min(other_row + 2, row + 2):
+                return True
+
+        for other_row, other_col in self.horizontal_walls:
+            if other_row == row and other_col == col:
+                return True
+
         return False
 
     def valid_move(self, start_row, start_col, end_row, end_col):
@@ -81,13 +75,25 @@ class Board:
             return False
 
         if end_col > start_col:
-            return not self.has_wall(start_row, start_col, "vertical")
+            return not (
+                self.has_wall(start_row, start_col, "vertical")
+                or self.has_wall(start_row - 1, start_col, "vertical")
+            )
         if end_col < start_col:
-            return not self.has_wall(start_row, end_col, "vertical")
+            return not (
+                self.has_wall(start_row, end_col, "vertical")
+                or self.has_wall(start_row - 1, end_col, "vertical")
+            )
         if end_row > start_row:
-            return not self.has_wall(start_row, start_col, "horizontal")
+            return not (
+                self.has_wall(start_row, start_col, "horizontal")
+                or self.has_wall(start_row, start_col - 1, "horizontal")
+            )
         if end_row < start_row:
-            return not self.has_wall(end_row, start_col, "horizontal")
+            return not (
+                self.has_wall(end_row, start_col, "horizontal")
+                or self.has_wall(end_row, start_col - 1, "horizontal")
+            )
 
         return False
 
